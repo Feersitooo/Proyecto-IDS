@@ -1,0 +1,58 @@
+{% extends 'base.html' %}{% block title %}Ingresar{% endblock %}
+{% block content %}
+<div class="login-layout">
+  <section class="login-story">
+<p class="eyebrow">BIBLIOTECA UCN · COQUIMBO</p>
+<h1>Consulta y préstamo<br>de libros.</h1>
+<p>Encuentra el libro que necesitas, solicita un ejemplar y consulta cuándo puedes retirarlo.</p>
+<ol class="intro-steps">
+<li>
+<span>01</span>
+<div>
+<strong>Explora el catálogo</strong>
+<small>Busca por título, autor o categoría.</small>
+</div>
+</li>
+<li>
+<span>02</span>
+<div>
+<strong>Envía tu solicitud</strong>
+<small>Biblioteca revisará la disponibilidad.</small>
+</div>
+</li>
+<li>
+<span>03</span>
+<div>
+<strong>Retira y sigue aprendiendo</strong>
+<small>Tu fecha de devolución, siempre a mano.</small>
+</div>
+</li>
+</ol>
+<div class="ods-line">
+<span class="ods-number">10</span>
+<span>REDUCCIÓN DE LAS<br>
+<strong>DESIGUALDADES</strong>
+</span>
+</div>
+</section>
+  <section class="panel login-card">
+<p class="eyebrow">ACCESO A TU CUENTA</p>
+<h2>Iniciar sesión</h2>
+<p class="muted">Ingresa con la cuenta que te entregó el equipo del proyecto.</p>
+    {% if error %}<div class="notice danger" role="alert" tabindex="-1" data-error>{{ error }}</div>{% endif %}
+    <form method="post" class="stack">{{ csrf() }}
+      <div>
+<label for="email">Correo electrónico</label>
+<input id="email" name="email" type="email" maxlength="254" autocomplete="username" required value="{{ request.form.get('email','') }}" placeholder="Tu correo registrado">
+</div>
+      <div>
+<label for="password">Contraseña</label>
+<input id="password" name="password" type="password" maxlength="200" autocomplete="current-password" required>
+</div>
+      <button class="button" type="submit">Ingresar a mi biblioteca <span aria-hidden="true">→</span>
+</button>
+    </form>
+<p class="small muted login-note">Prototipo académico independiente. No uses tu contraseña institucional. Si olvidaste tu clave, solicita al responsable del proyecto que la restablezca.</p>
+  </section>
+</div>
+{% endblock %}

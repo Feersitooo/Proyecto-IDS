@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% from 'macros.html' import badge,empty %}{% block title %}{{ 'Solicitudes' if admin else 'Mis solicitudes' }}{% endblock %}
+{% block content %}<div class="page-heading">
+<div>
+<p class="eyebrow">{{ 'GESTIÓN DE BIBLIOTECA' if admin else 'MI BIBLIOTECA' }}</p>
+<h1>{{ 'Solicitudes' if admin else 'Mis solicitudes' }}</h1>
+<p class="muted">{{ 'Revisa, asigna un ejemplar y confirma su retiro.' if admin else 'Sigue el proceso desde la solicitud hasta la entrega.' }}</p>
+</div>
+<a class="button secondary" href="{{ url_for('catalog.index') }}">Explorar catálogo</a>
+</div>
+{% if admin %}<nav class="tabs" aria-label="Filtrar solicitudes">{% for value,label in [('pendiente','Pendientes'),('aprobada','Para retiro'),('atendida','Atendidas'),('rechazada','Rechazadas'),('cancelada','Canceladas'),('','Todas')] %}<a href="{{ url_for('views.admin_requests',status=value) }}" {% if status==value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>{% endif %}
+{% if rows %}<div class="panel list-panel">{% for row in rows %}<article class="list-row">
+<div>
+<p class="small muted">#{{ row.id }} · {{ row.created_at|localdate }}</p>
+<h2 class="item-title">
+<a href="{{ url_for('views.request_detail',request_id=row.id) }}">{{ row.title }}</a>
+</h2>
+<p class="muted">{{ row.student_name + ' · ' if admin else '' }}{{ row.collection_name }}</p>{% if row.rejection_reason %}<p class="reason">Motivo: {{ row.rejection_reason }}</p>{% endif %}</div>
+<div>{{ badge(row.status) }}{% if row.status=='aprobada' %}<p class="small">{{ 'Listo para retirar' if row.ready_at else 'En preparación' }}</p>{% endif %}</div>
+<a class="button secondary" href="{{ url_for('views.request_detail',request_id=row.id) }}">{{ 'Gestionar' if admin else 'Ver detalle' }} →</a>
+</article>{% endfor %}</div>{% else %}{{ empty('No hay solicitudes para mostrar','Las solicitudes aparecerán aquí cuando un alumno las envíe desde el catálogo.' if admin else 'Cuando solicites un libro, podrás seguir aquí cada paso.') }}{% endif %}{% endblock %}

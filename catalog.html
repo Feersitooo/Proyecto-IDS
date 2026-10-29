@@ -1,0 +1,36 @@
+{% extends 'base.html' %}{% from 'macros.html' import empty,book_list with context %}{% block title %}Catálogo{% endblock %}
+{% block content %}
+<div class="catalog-heading">
+<p class="eyebrow">BIBLIOTECA UCN · COQUIMBO</p>
+<h1>Catálogo de libros</h1>
+<p class="muted">Busca un título y solicita su préstamo. Biblioteca te avisará cuando puedas retirarlo.</p>
+</div>
+<form class="search-panel" method="get" role="search" aria-label="Buscar libros">
+  <div class="search-field">
+<label for="q">Título, autor o categoría</label>
+<input type="search" id="q" name="q" value="{{ q }}" maxlength="180" placeholder="Título, autor o categoría…">
+</div>
+  <div>
+<label for="category">Categoría</label>
+<select id="category" name="category">
+<option value="">Todas las categorías</option>{% for c in categories %}<option {% if category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+</div>
+  <div>
+<label for="availability">Disponibilidad</label>
+<select id="availability" name="availability">
+<option value="">Todos los libros</option>
+<option value="available" {% if availability=='available' %}selected{% endif %}>Con ejemplares disponibles</option>
+<option value="unavailable" {% if availability=='unavailable' %}selected{% endif %}>Sin disponibilidad</option>
+</select>
+</div>
+  <button class="button" type="submit">Buscar</button>
+</form>
+<div class="section-heading">
+<div>
+<h2>Resultados</h2>
+<p class="muted">{{ books|length }} {{ 'título encontrado' if books|length==1 else 'títulos encontrados' }}{% if q %} para “{{ q }}”{% endif %}</p>
+</div>
+<div class="actions">{% if q or category or availability %}<a href="{{ url_for('catalog.index') }}">Limpiar filtros</a>{% endif %}{% if g.user.role=='admin' %}<a class="button secondary" href="{{ url_for('catalog.book_form') }}">+ Añadir libro</a>{% endif %}</div>
+</div>
+{% if books %}{{ book_list(books, favorite_ids, 'catalog') }}{% else %}{{ empty('No encontramos libros con esos filtros','Prueba con una palabra más breve, otro autor o todas las categorías.') }}{% endif %}
+{% endblock %}

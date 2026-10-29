@@ -1,0 +1,36 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+{% macro badge(status) %}
+<span class="badge badge-{{ status }}">{{ {'pendiente':'Pendiente','aprobada':'Aprobada para retiro','rechazada':'Rechazada','cancelada':'Cancelada','atendida':'Atendida','activo':'Activo','devuelto':'Devuelto','disponible':'Disponible','asignado':'Asignado para retiro','prestado':'Prestado','baja':'Dado de baja'}.get(status,status) }}</span>
+{% endmacro %}
+{% macro book_list(books, favorite_ids, return_to) %}
+<div class="catalog-list">
+{% for book in books %}
+<article class="catalog-row">
+  <div class="catalog-entry">
+<span class="category">{{ book.category }}</span>
+<h3>
+<a href="{{ url_for('catalog.detail',book_id=book.id) }}">{{ book.title }}</a>
+</h3>
+<p>{{ book.author }} <span class="muted">· {{ book.publication_year or 'Sin año' }}</span>
+</p>
+</div>
+  <div class="catalog-status">
+<strong class="{{ 'available' if book.available else 'unavailable' }}">{{ book.available }} {{ 'disponible' if book.available==1 else 'disponibles' }}</strong>
+<small>{{ book.total }} {{ 'ejemplar en catálogo' if book.total==1 else 'ejemplares en catálogo' }}</small>
+</div>
+  <div class="catalog-actions">
+<a class="button secondary" href="{{ url_for('catalog.detail',book_id=book.id) }}">Ver ficha</a>
+  {% if g.user.role=='alumno' %}<form method="post" action="{{ url_for('favorites.favorite',book_id=book.id) }}">{{ csrf() }}<input type="hidden" name="return_to" value="{{ return_to }}">
+<input type="hidden" name="action" value="{{ 'remove' if book.id in favorite_ids else 'add' }}">
+<button class="save-button" aria-label="{{ 'Quitar de favoritos' if book.id in favorite_ids else 'Guardar en favoritos' }}: {{ book.title }}">{{ 'Guardado · quitar' if book.id in favorite_ids else 'Guardar' }}</button>
+</form>{% endif %}</div>
+</article>
+{% endfor %}
+</div>
+{% endmacro %}
+{% macro empty(title,description) %}<div class="empty">
+<span class="empty-symbol" aria-hidden="true">↗</span>
+<h2>{{ title }}</h2>
+<p>{{ description }}</p>
+<a class="button secondary" href="{{ url_for('catalog.index') }}">Explorar catálogo</a>
+</div>{% endmacro %}

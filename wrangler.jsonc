@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "biblioteca-mejorada",
+  "main": "src/worker.py",
+  "compatibility_date": "2026-10-29",
+  "compatibility_flags": [
+    "python_workers"
+  ],
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "biblioteca-mejorada",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "cloudflare/migrations"
+    }
+  ],
+  "vars": {
+    "SITE_HOST": "CONFIGURAR.workers.dev"
+  },
+  "build": {
+    "command": "uv run python scripts/prepare_cloudflare.py"
+  }
+}

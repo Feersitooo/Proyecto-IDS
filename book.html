@@ -1,0 +1,67 @@
+{% extends 'base.html' %}{% from 'macros.html' import badge %}{% block title %}{{ book.title }}{% endblock %}
+{% block content %}<a class="back-link" href="{{ url_for('catalog.index') }}">← Volver al catálogo</a>
+<div class="detail-layout">
+<section>
+<p class="eyebrow">{{ book.category }}</p>
+<h1>{{ book.title }}</h1>
+<p class="lead">{{ book.author }}</p>
+<p class="muted">{{ book.publication_year or 'Sin año' }} · Referencia: {{ book.isbn or 'Sin referencia' }}</p>
+<p class="description">{{ book.description or 'Este título aún no tiene una descripción.' }}</p>{% if g.user.role=='admin' %}<div class="actions">
+<a class="button secondary" href="{{ url_for('catalog.book_form',book_id=book.id) }}">Editar libro</a>
+<a class="button secondary" href="{{ url_for('catalog.copy_form',book_id=book.id) }}">+ Añadir ejemplar</a>
+</div>{% endif %}</section>
+<aside class="panel request-panel">
+<p class="eyebrow">DISPONIBILIDAD ACTUAL</p>
+<p class="big-number">{{ available }} <span>{{ 'ejemplar disponible' if available==1 else 'ejemplares disponibles' }}</span>
+</p>{% if g.user.role=='alumno' %}{% if already_open %}<p>Ya tienes una solicitud o préstamo activo de este título.</p>
+<a href="{{ url_for('views.my_requests') }}">Consultar mis solicitudes →</a>{% elif not g.user.lending_enabled %}<div class="notice danger">Tu cuenta está bloqueada para solicitar préstamos. {{ g.user.block_reason }}</div>{% elif options %}<form method="post" action="{{ url_for('views.submit',book_id=book.id) }}" class="stack">{{ csrf() }}<div>
+<label for="collection_id">Colección de retiro</label>
+<select name="collection_id" id="collection_id" required>{% for c in options %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+</div>
+<button class="button" type="submit">Solicitar préstamo →</button>
+</form>
+<p class="small muted">Una solicitud pendiente no asegura un ejemplar. Espera la confirmación de biblioteca antes de ir a retirarlo.</p>{% else %}<p>No hay ejemplares disponibles en este momento. Activa el aviso de disponibilidad debajo de esta ficha.</p>{% endif %}{% else %}<p class="muted">La asignación se realiza al aprobar una solicitud. El préstamo empieza con la entrega física.</p>{% endif %}</aside>
+</div>
+{% if g.user.role=='alumno' %}
+<section class="personal-tools" aria-labelledby="personal-heading">
+  <div>
+<h2 id="personal-heading">Tu lista personal</h2>
+<p class="small muted">Guardar o activar un aviso no aparta ejemplares.</p>
+</div>
+  <div class="actions">
+    <form method="post" action="{{ url_for('favorites.favorite',book_id=book.id) }}">{{ csrf() }}<input type="hidden" name="action" value="{{ 'remove' if is_favorite else 'add' }}">
+<button class="button secondary">{{ 'Quitar de favoritos' if is_favorite else 'Guardar en favoritos' }}</button>
+</form>
+    {% if is_watched or not available %}<form method="post" action="{{ url_for('favorites.watch',book_id=book.id) }}">{{ csrf() }}<input type="hidden" name="action" value="{{ 'remove' if is_watched else 'add' }}">
+<button class="button secondary">{{ 'Desactivar aviso' if is_watched else 'Avísame cuando esté disponible' }}</button>
+</form>{% endif %}
+  </div>
+  {% if is_watched %}<p class="small available">Aviso activado. Lo verás en tu cuenta al volver a haber disponibilidad.</p>{% endif %}
+</section>
+{% endif %}
+<div class="section-heading">
+<h2>Ejemplares y ubicación</h2>
+<span class="small muted">{{ copies|length }} copias registradas</span>
+</div>
+{% if copies %}<div class="table-wrap" role="region" aria-label="Ejemplares del libro" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>Identificador</th>
+<th>Colección</th>
+<th>Ubicación</th>
+<th>Estado</th>{% if g.user.role=='admin' %}<th>Gestión</th>{% endif %}</tr>
+</thead>
+<tbody>{% for item in copies %}<tr>
+<td>
+<strong>{{ item.code }}</strong>
+</td>
+<td>{{ item.collection_name }}</td>
+<td>{{ item.location }}</td>
+<td>{{ badge(item.state) }}{% if item.state=='baja' %}<p class="small muted">{{ item.retirement_reason }}</p>{% endif %}</td>{% if g.user.role=='admin' %}<td>{% if item.state=='disponible' %}<a href="{{ url_for('catalog.copy_form',book_id=book.id,copy_id=item.id) }}">Editar / dar de baja</a>{% else %}<span class="small muted">{{ 'Historial conservado' if item.state=='baja' else 'En circulación' }}</span>{% endif %}</td>{% endif %}</tr>{% endfor %}</tbody>
+</table>
+</div>{% else %}<div class="empty">
+<h2>Sin ejemplares registrados</h2>
+<p>Biblioteca puede añadir las copias físicas de este título.</p>
+</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% from 'macros.html' import empty,book_list with context %}
+{% block title %}Favoritos{% endblock %}
+{% block content %}
+<div class="page-heading">
+<div>
+<h1>Favoritos</h1>
+<p class="muted">Tu lista de libros guardados. Solo tú puedes consultarla.</p>
+</div>
+<a class="button secondary" href="{{ url_for('catalog.index') }}">Buscar libros</a>
+</div>
+{% if books %}{{ book_list(books,favorite_ids,'favorites') }}{% else %}{{ empty('Aún no tienes favoritos','Guarda libros desde el catálogo o desde su ficha para encontrarlos aquí.') }}{% endif %}
+<section aria-labelledby="watches-heading">
+<div class="section-heading">
+<h2 id="watches-heading">Avisos de disponibilidad activados</h2>
+</div>
+<p class="muted">Seguiremos avisándote en cada nueva vuelta a disponibilidad hasta que desactives el aviso. Quitar un favorito no desactiva su aviso.</p>
+{% if watched_books %}<div class="panel list-panel">{% for book in watched_books %}<div class="list-row">
+<div>
+<h3>
+<a href="{{ url_for('catalog.detail',book_id=book.id) }}">{{ book.title }}</a>
+</h3>
+<p>{{ book.author }}</p>
+</div>
+<span>{{ 'Disponible ahora' if book.available else 'Esperando disponibilidad' }}</span>
+<form method="post" action="{{ url_for('favorites.watch',book_id=book.id) }}">{{ csrf() }}<input type="hidden" name="action" value="remove">
+<input type="hidden" name="return_to" value="favorites">
+<button class="button secondary">Desactivar aviso</button>
+</form>
+</div>{% endfor %}</div>
+{% else %}<p class="panel">No tienes avisos activados. En la ficha de un título sin ejemplares disponibles encontrarás “Avísame cuando esté disponible”.</p>{% endif %}
+<p class="small muted">Los favoritos y avisos no reservan ejemplares ni cambian tu cupo de préstamos.</p>
+</section>
+{% endblock %}

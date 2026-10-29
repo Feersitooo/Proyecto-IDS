@@ -1,0 +1,29 @@
+{% extends 'base.html' %}{% block title %}Actividad{% endblock %}{% block content %}<div class="page-heading">
+<div>
+<p class="eyebrow">TRAZABILIDAD</p>
+<h1>Actividad reciente</h1>
+<p class="muted">Últimas 100 operaciones. El registro completo se conserva en la base de datos.</p>
+</div>
+</div>
+<div class="table-wrap" role="region" tabindex="0" aria-label="Actividad">
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Responsable</th>
+<th>Acción</th>
+<th>Registro</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody>{% for event in events %}<tr>
+<td>{{ event.created_at|localdate }}</td>
+<td>{{ event.actor or 'Administración por consola' }}</td>
+<td>{{ event.event.replace('_',' ') }}</td>
+<td>#{{ event.entity_id }}</td>
+<td>{{ event.detail or '—' }}</td>
+</tr>{% else %}<tr>
+<td colspan="5">Todavía no se han registrado operaciones.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>{% endblock %}

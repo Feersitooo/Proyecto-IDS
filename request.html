@@ -1,0 +1,84 @@
+{% extends 'base.html' %}{% from 'macros.html' import badge %}{% block title %}Solicitud #{{ row.id }}{% endblock %}
+{% block content %}<a class="back-link" href="{{ url_for('views.admin_requests' if g.user.role=='admin' else 'views.my_requests') }}">← Volver a solicitudes</a>
+<div class="page-heading">
+<div>
+<p class="eyebrow">SOLICITUD #{{ row.id }}</p>
+<h1>{{ row.title }}</h1>
+<p class="muted">{{ row.author }} · {{ row.collection_name }}</p>
+</div>{{ badge(row.status) }}</div>
+<div class="detail-layout">
+<section class="panel">
+<h2>Detalle de la solicitud</h2>
+<dl class="details">
+<div>
+<dt>Alumno</dt>
+<dd>{{ row.student_name }}</dd>
+</div>
+<div>
+<dt>Solicitada</dt>
+<dd>{{ row.created_at|localdate }}</dd>
+</div>{% if row.copy_id %}<div>
+<dt>Ejemplar</dt>
+<dd>{{ row.code }}</dd>
+</div>
+<div>
+<dt>Ubicación</dt>
+<dd>{{ row.location }}</dd>
+</div>
+<div>
+<dt>Aprobación</dt>
+<dd>{{ row.approved_at|localdate }}</dd>
+</div>{% endif %}{% if row.ready_at %}<div>
+<dt>Confirmación de retiro</dt>
+<dd>{{ row.ready_at|localdate }}</dd>
+</div>{% endif %}{% if row.closed_at %}<div>
+<dt>Cierre de solicitud</dt>
+<dd>{{ row.closed_at|localdate }}</dd>
+</div>{% endif %}</dl>
+{% if row.status=='pendiente' %}<div class="notice info">Biblioteca está revisando tu solicitud. Todavía no tienes un ejemplar asignado.</div>{% elif row.status=='aprobada' %}<div class="notice {{ 'success' if row.ready_at else 'info' }}">
+<strong>{{ 'Listo para retirar.' if row.ready_at else 'En preparación.' }}</strong> {{ 'Biblioteca confirmó la preparación del ejemplar. La fecha de devolución se confirma al entregarlo.' if row.ready_at else 'Espera la confirmación antes de acudir. El período de préstamo aún no comienza.' }}</div>{% elif row.status=='rechazada' %}<div class="notice danger">
+<strong>Motivo del rechazo:</strong> {{ row.rejection_reason }}</div>{% elif row.status=='cancelada' %}<div class="notice info">Solicitud cancelada. Ya no retiene ningún ejemplar.</div>{% else %}<div class="notice success">Entrega registrada. Revisa el préstamo y su fecha de devolución en <a href="{{ url_for('views.admin_loans' if g.user.role=='admin' else 'views.my_loans') }}">{{ 'Préstamos' if g.user.role=='admin' else 'Mis préstamos' }}</a>.</div>{% endif %}
+<a href="{{ url_for('catalog.detail',book_id=row.book_id) }}">Ver ficha del libro →</a>
+</section>
+<aside class="stack">
+{% if g.user.role=='admin' %}
+{% if row.status=='pendiente' %}<section class="panel">
+<h2>Asignar un ejemplar</h2>{% if options %}<form method="post" action="{{ url_for('views.request_action',request_id=row.id,action='aprobar') }}" class="stack">{{ csrf() }}<div>
+<label for="copy_id">Ejemplar disponible</label>
+<select id="copy_id" name="copy_id" required>{% for item in options %}<option value="{{ item.id }}">{{ item.code }} · {{ item.location }}</option>{% endfor %}</select>
+</div>
+<button class="button">Aprobar y asignar</button>
+</form>{% else %}<p>No quedan ejemplares disponibles de esta colección. Puedes registrar un rechazo con su motivo.</p>{% endif %}</section>
+<section class="panel">
+<h2>Rechazar solicitud</h2>
+<form method="post" action="{{ url_for('views.request_action',request_id=row.id,action='rechazar') }}" class="stack">{{ csrf() }}<div>
+<label for="reason">Motivo visible para el alumno</label>
+<textarea id="reason" name="reason" minlength="3" maxlength="500" required rows="3">
+</textarea>
+</div>
+<button class="button danger-button">Registrar rechazo</button>
+</form>
+</section>
+{% elif row.status=='aprobada' %}<section class="panel">
+<h2>{{ 'Registrar entrega física' if row.ready_at else 'Preparar retiro' }}</h2>{% if not row.ready_at %}<p>Confirma cuando el ejemplar esté preparado. El alumno verá el aviso en su cuenta.</p>
+<form method="post" action="{{ url_for('views.request_action',request_id=row.id,action='preparar') }}">{{ csrf() }}<button class="button">Confirmar listo para retiro</button>
+</form>{% else %}<form method="post" action="{{ url_for('views.request_action',request_id=row.id,action='entregar') }}" class="stack">{{ csrf() }}<div>
+<label for="due_at">Fecha y hora de devolución</label>
+<input id="due_at" type="datetime-local" name="due_at" value="{{ suggested }}" required aria-describedby="due-help">
+<p id="due-help" class="small muted">Hora de Santiago. Sugerencia con días calendario; revisa feriados y horario de atención antes de confirmar.</p>
+</div>
+<label class="checkbox">
+<input type="checkbox" name="confirmed" value="yes" required>
+<span>Confirmo la entrega física, la identificación del alumno y este vencimiento.</span>
+</label>
+<button class="button">Registrar entrega e iniciar préstamo</button>
+</form>{% endif %}</section>{% endif %}
+{% endif %}
+{% if row.status in ['pendiente','aprobada'] %}<section class="panel">
+<h2>Cancelar solicitud</h2>
+<p class="muted">Puedes cancelarla hasta antes de la entrega. El ejemplar asignado quedará libre.</p>
+<form method="post" action="{{ url_for('views.cancel',request_id=row.id) }}" data-confirm="¿Cancelar esta solicitud y liberar su ejemplar?">{{ csrf() }}<button class="button secondary">Cancelar solicitud</button>
+</form>
+</section>{% endif %}
+</aside>
+</div>{% endblock %}

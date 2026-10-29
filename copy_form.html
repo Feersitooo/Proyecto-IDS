@@ -1,0 +1,30 @@
+{% extends 'base.html' %}{% block title %}{{ 'Editar ejemplar' if copy_id else 'Añadir ejemplar' }}{% endblock %}
+{% block content %}<a class="back-link" href="{{ url_for('catalog.detail',book_id=book.id) }}">← Volver al libro</a>
+<div class="form-page">
+<p class="eyebrow">EJEMPLARES</p>
+<h1>{{ 'Editar ejemplar' if copy_id else 'Añadir ejemplar' }}</h1>
+<p class="muted">{{ book.title }}</p>{% if error %}<div class="notice danger" role="alert" tabindex="-1" data-error>{{ error }}</div>{% endif %}<form method="post" class="panel stack">{{ csrf() }}<div>
+<label for="code">Identificador único *</label>
+<input id="code" name="code" value="{{ item.get('code','') }}" required maxlength="40">
+</div>
+<div>
+<label for="collection_id">Colección *</label>
+<select id="collection_id" name="collection_id" required>{% for collection in collections %}<option value="{{ collection.id }}" {% if item.get('collection_id')==collection.id %}selected{% endif %}>{{ collection.name }}</option>{% endfor %}</select>
+</div>
+<div>
+<label for="location">Ubicación física *</label>
+<input id="location" name="location" value="{{ item.get('location','') }}" required maxlength="120" placeholder="Campus Guayacán · Estante A-1">
+</div>
+<p class="small muted">Su estado se calcula desde las solicitudes y préstamos. No se cambia manualmente.</p>
+<button class="button">Guardar ejemplar</button>
+</form>{% if copy_id %}<section class="panel danger-zone">
+<h2>Dar de baja</h2>
+<p>El ejemplar dejará de ofrecerse. Sus solicitudes y préstamos se conservarán.</p>
+<form method="post" action="{{ url_for('catalog.retire',copy_id=copy_id) }}" class="stack" data-confirm="¿Dar de baja este ejemplar? Su historial se conservará.">{{ csrf() }}<div>
+<label for="reason">Motivo de baja *</label>
+<textarea id="reason" name="reason" required maxlength="500" rows="3">
+</textarea>
+</div>
+<button class="button danger-button">Dar de baja el ejemplar</button>
+</form>
+</section>{% endif %}</div>{% endblock %}

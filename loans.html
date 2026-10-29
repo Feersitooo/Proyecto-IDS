@@ -1,0 +1,34 @@
+{% extends 'base.html' %}{% from 'macros.html' import badge,empty %}{% block title %}{{ 'Préstamos' if admin else 'Mis préstamos' }}{% endblock %}
+{% block content %}<div class="page-heading">
+<div>
+<p class="eyebrow">{{ 'GESTIÓN DE BIBLIOTECA' if admin else 'MI BIBLIOTECA' }}</p>
+<h1>{{ 'Préstamos y devoluciones' if admin else 'Mis préstamos' }}</h1>
+<p class="muted">Cada préstamo comienza con la entrega física. Todas las horas corresponden a Santiago.</p>
+</div>
+</div>
+{% if admin %}<nav class="tabs" aria-label="Filtrar préstamos">{% for value,label in [('activo','Activos'),('vencido','Vencidos'),('devuelto','Devueltos'),('','Historial completo')] %}<a href="{{ url_for('views.admin_loans',status=value) }}" {% if status==value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>{% endif %}
+{% if rows %}<div class="loan-grid">{% for loan in rows %}{% set notice=due_notice(loan) %}<article class="panel loan-card">
+<div class="section-heading">{{ badge(loan.status) }}{% if notice %}<span class="badge {{ 'badge-rechazada' if notice=='Vencido' else 'badge-pendiente' }}">{{ notice }}</span>{% endif %}</div>
+<h2 class="item-title">{{ loan.title_snapshot }}</h2>
+<p class="muted">{{ loan.code_snapshot }} · {{ loan.collection_name }}</p>{% if admin %}<p>
+<strong>{{ loan.student_name }}</strong>
+<br>
+<span class="small muted">{{ loan.email }}</span>
+</p>{% endif %}<dl class="details">
+<div>
+<dt>Entrega</dt>
+<dd>{{ loan.delivered_at|localdate }}</dd>
+</div>
+<div>
+<dt>Devolución prevista</dt>
+<dd>
+<strong>{{ loan.due_at|localdate }}</strong>
+</dd>
+</div>{% if loan.returned_at %}<div>
+<dt>Devuelto</dt>
+<dd>{{ loan.returned_at|localdate }}</dd>
+</div>{% endif %}</dl>
+<div class="actions">
+<a href="{{ url_for('views.request_detail',request_id=loan.request_id) }}">Solicitud #{{ loan.request_id }} →</a>{% if admin and loan.status=='activo' %}<form method="post" action="{{ url_for('views.return_loan',loan_id=loan.id) }}" data-confirm="¿Confirmas que recibiste físicamente este ejemplar?">{{ csrf() }}<button class="button secondary">Registrar devolución</button>
+</form>{% endif %}</div>
+</article>{% endfor %}</div>{% else %}{{ empty('No hay préstamos para mostrar','Los préstamos aparecerán después de registrar una entrega física. Los devueltos permanecen en el historial.') }}{% endif %}{% endblock %}

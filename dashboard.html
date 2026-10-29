@@ -1,0 +1,71 @@
+{% extends 'base.html' %}{% from 'macros.html' import badge,empty %}{% block title %}Mi biblioteca{% endblock %}
+{% block content %}
+<div class="page-heading">
+<div>
+<p class="eyebrow">MI BIBLIOTECA</p>
+<h1>Hola, {{ g.user.name.split()[0] }}.</h1>
+<p class="muted">Revisa tus solicitudes y fechas de devolución.</p>
+</div>
+<a class="button" href="{{ url_for('catalog.index') }}">Buscar un libro <span aria-hidden="true">↗</span>
+</a>
+</div>
+{% if not g.user.lending_enabled %}<div class="notice danger">
+<strong>Préstamos bloqueados.</strong> {{ g.user.block_reason }} Puedes consultar tu cuenta y cancelar solicitudes sin entregar.</div>{% endif %}
+<div class="stats">
+<div>
+<span>Préstamos activos</span>
+<strong>{{ loans|length }}</strong>
+</div>
+<div>
+<span>Solicitudes en curso</span>
+<strong>{{ requests|length }}</strong>
+</div>
+<div>
+<span>Avisos de devolución</span>
+<strong>{{ notices|length }}</strong>
+</div>
+</div>
+{% if notices %}<section aria-labelledby="notices-heading">
+<div class="section-heading">
+<h2 id="notices-heading">Atención a tus devoluciones</h2>
+<span class="small muted">La hora exacta importa</span>
+</div>
+<div class="notice-grid">{% for loan,notice in notices %}<article class="due-card {{ 'overdue' if notice=='Vencido' else '' }}">
+<span class="badge {{ 'badge-rechazada' if notice=='Vencido' else 'badge-pendiente' }}">{{ notice }}</span>
+<h3>{{ loan.title_snapshot }}</h3>
+<p>{{ loan.due_at|localdate }}</p>
+<small>{{ loan.code_snapshot }} · {{ loan.collection_name }}</small>
+</article>{% endfor %}</div>
+</section>{% else %}<div class="notice success">No tienes avisos de vencimiento por ahora. Aquí aparecerán tus próximas devoluciones.</div>{% endif %}
+{% if availability_notices %}<section aria-labelledby="availability-heading">
+<div class="section-heading">
+<h2 id="availability-heading">Libros que vuelven a estar disponibles</h2>
+<a href="{{ url_for('favorites.notices') }}">Ver avisos ({{ unread_count }})</a>
+</div>
+<div class="panel list-panel">{% for notice in availability_notices %}<div class="list-row">
+<div>
+<h3>
+<a href="{{ url_for('catalog.detail',book_id=notice.book_id) }}">{{ notice.title }}</a>
+</h3>
+<p>{{ notice.created_at|localdate }}</p>
+</div>
+<span>{{ 'Disponible ahora' if notice.available else 'Ya no quedan disponibles' }}</span>
+<a href="{{ url_for('catalog.detail',book_id=notice.book_id) }}">Consultar ficha</a>
+</div>{% endfor %}</div>
+<p class="small muted">El aviso no reserva una copia. La disponibilidad puede cambiar.</p>
+</section>{% endif %}
+<section>
+<div class="section-heading">
+<h2>El estado de tus solicitudes</h2>
+<a href="{{ url_for('views.my_requests') }}">Ver todas →</a>
+</div>{% if requests %}<div class="panel list-panel">{% for row in requests %}<div class="list-row">
+<div>
+<h3>
+<a href="{{ url_for('views.request_detail',request_id=row.id) }}">{{ row.title }}</a>
+</h3>
+<p class="muted">{{ row.collection_name }} · Solicitud #{{ row.id }}</p>
+</div>
+<div>{{ badge(row.status) }}{% if row.status=='aprobada' %}<p class="small {{ 'available' if row.ready_at else 'muted' }}">{{ 'Listo para retirar' if row.ready_at else 'En preparación · espera la confirmación' }}</p>{% endif %}</div>
+<a href="{{ url_for('views.request_detail',request_id=row.id) }}">Ver detalle →</a>
+</div>{% endfor %}</div>{% else %}{{ empty('Todavía no hay solicitudes en curso','Explora los libros disponibles y envía tu primera solicitud.') }}{% endif %}</section>
+{% endblock %}

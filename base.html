@@ -1,0 +1,59 @@
+{% from 'macros.html' import csrf %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Biblioteca Mejorada: prototipo académico de acceso a libros para estudiantes. ODS 10, UCN Coquimbo.">
+  <title>{% block title %}Biblioteca Mejorada{% endblock %} · UCN Coquimbo</title>
+  <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
+  <link rel="icon" href="{{ url_for('static',filename='favicon.svg') }}" type="image/svg+xml">
+  <script defer src="{{ url_for('static',filename='app.js') }}">
+</script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <div class="topline">
+<div class="container">
+<span>UCN · Campus Guayacán, Coquimbo</span>
+<span>Prototipo académico · Datos de demostración</span>
+</div>
+</div>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="{{ url_for('views.home') }}" aria-label="Biblioteca Mejorada, inicio">
+<span class="brand-mark" aria-hidden="true">
+<svg viewBox="0 0 32 32" fill="none">
+<path d="M16 8C12 5 7 5 3 6v19c5-1 9 0 13 3 4-3 8-4 13-3V6c-4-1-9-1-13 2Zm0 0v20" stroke="currentColor" stroke-width="2"/>
+</svg>
+</span>
+<span>Biblioteca <strong>Mejorada</strong>
+<small>Biblioteca UCN · Coquimbo</small>
+</span>
+</a>
+      {% if g.user %}<div class="account">
+<span>{{ g.user.name }}<small>{{ 'Biblioteca · Administración' if g.user.role=='admin' else 'Estudiante de pregrado' }}</small>
+</span>
+<form method="post" action="{{ url_for('auth.logout') }}">{{ csrf() }}<button class="text-button" type="submit">Salir</button>
+</form>
+</div>{% endif %}
+    </div>
+    {% if g.user %}<nav class="container nav" aria-label="Navegación principal">
+      {% set links = [('views.home','Mi inicio'),('catalog.index','Catálogo'),('favorites.index','Favoritos'),('favorites.notices','Avisos' ~ (' · ' ~ unread_count if unread_count else '')),('views.my_requests','Mis solicitudes'),('views.my_loans','Mis préstamos'),('views.regulations','Reglas de préstamo')] if g.user.role=='alumno' else [('views.admin_requests','Solicitudes'),('views.admin_loans','Préstamos'),('catalog.index','Catálogo y ejemplares'),('views.students','Alumnos'),('views.regulations','Reglas'),('views.activity','Actividad')] %}
+      {% for endpoint,label in links %}<a href="{{ url_for(endpoint) }}" {% if request.endpoint==endpoint %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    </nav>{% endif %}
+  </header>
+  <main class="container main" id="contenido">
+    {% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="notice {{ category }}" role="status">{{ message }}</div>{% endfor %}{% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="container footer">
+<p>
+<strong>Biblioteca Mejorada</strong>
+<br>Proyecto de Ingeniería de Desarrollo Sostenible · ODS 10</p>
+<p>Facilitar el acceso, reducir barreras.<br>
+<span class="muted">Fechas y horas: America/Santiago.</span>
+</p>
+</footer>
+</body>
+</html>

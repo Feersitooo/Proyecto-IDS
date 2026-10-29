@@ -1,0 +1,32 @@
+{% extends 'base.html' %}{% from 'macros.html' import empty %}{% block title %}Alumnos{% endblock %}
+{% block content %}<div class="page-heading">
+<div>
+<p class="eyebrow">GESTIÓN DE BIBLIOTECA</p>
+<h1>Alumnos y habilitación</h1>
+<p class="muted">El bloqueo de préstamos permite seguir consultando la cuenta. Una cuenta inactiva no puede iniciar sesión.</p>
+</div>
+</div>
+<p><a class="button" href="{{ url_for('cloud_accounts.create') }}">Crear alumno</a></p>
+<div class="loan-grid">{% for student in students %}<article class="panel">
+<h2>{{ student.name }}</h2>
+<p class="muted">{{ student.email }}<br>{{ student.active_loans }} préstamos activos</p>
+<form method="post" action="{{ url_for('views.eligibility',user_id=student.id) }}" class="stack">{{ csrf() }}<label class="checkbox">
+<input type="checkbox" name="account_active" value="yes" {% if student.account_active %}checked{% endif %}>
+<span>Cuenta activa</span>
+</label>
+<label class="checkbox">
+<input type="checkbox" name="lending_enabled" value="yes" {% if student.lending_enabled %}checked{% endif %}>
+<span>Habilitado para préstamos</span>
+</label>
+<div>
+<label for="reason-{{ student.id }}">Motivo (obligatorio al bloquear)</label>
+<textarea id="reason-{{ student.id }}" name="reason" maxlength="500" rows="3">{{ student.block_reason }}</textarea>
+</div>
+<button class="button secondary">Guardar habilitación</button>
+</form>
+<details><summary>Cambiar contraseña</summary>
+<form method="post" class="stack" action="{{ url_for('cloud_accounts.reset_password',user_id=student.id) }}">{{ csrf() }}
+<label for="password-{{ student.id }}">Nueva contraseña (mínimo 12 caracteres)</label>
+<input id="password-{{ student.id }}" type="password" name="password" minlength="12" maxlength="200" required autocomplete="new-password">
+<p class="small muted">Activa la cuenta y cierra sus sesiones anteriores. Conserva su habilitación o bloqueo de préstamos.</p>
+<button class="button secondary">Cambiar contraseña y activar cuenta</button></form></details></article>{% else %}{{ empty('Aún no hay alumnos','Carga los datos de demostración con el comando documentado en el README.') }}{% endfor %}</div>{% endblock %}

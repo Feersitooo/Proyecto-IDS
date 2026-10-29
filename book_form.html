@@ -1,0 +1,34 @@
+{% extends 'base.html' %}{% block title %}{{ 'Editar libro' if book_id else 'Añadir libro' }}{% endblock %}
+{% block content %}<a class="back-link" href="{{ url_for('catalog.detail',book_id=book_id) if book_id else url_for('catalog.index') }}">← Volver</a>
+<div class="form-page">
+<p class="eyebrow">CATÁLOGO</p>
+<h1>{{ 'Editar libro' if book_id else 'Añadir libro' }}</h1>
+<p class="muted">Registra el título. Sus copias físicas se añaden como ejemplares.</p>{% if error %}<div class="notice danger" role="alert" tabindex="-1" data-error>{{ error }}</div>{% endif %}<form method="post" class="panel stack">{{ csrf() }}<div>
+<label for="title">Título *</label>
+<input id="title" name="title" required maxlength="180" value="{{ book.get('title','') }}">
+</div>
+<div>
+<label for="author">Autor *</label>
+<input id="author" name="author" required maxlength="180" value="{{ book.get('author','') }}">
+</div>
+<div class="form-grid">
+<div>
+<label for="category">Categoría *</label>
+<input id="category" name="category" required maxlength="80" value="{{ book.get('category','') }}">
+</div>
+<div>
+<label for="publication_year">Año</label>
+<input id="publication_year" name="publication_year" type="number" min="1000" max="2100" value="{{ book.get('publication_year','') or '' }}">
+</div>
+</div>
+<div>
+<label for="isbn">ISBN o referencia bibliográfica</label>
+<input id="isbn" name="isbn" maxlength="30" value="{{ book.get('isbn','') }}">
+</div>
+<div>
+<label for="description">Descripción</label>
+<textarea id="description" name="description" rows="5" maxlength="2000">{{ book.get('description','') }}</textarea>
+</div>
+<button class="button">Guardar libro</button>
+</form>
+</div>{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "name": "biblioteca-mejorada",
+  "private": true,
+  "version": "3.0.0",
+  "devDependencies": { "wrangler": "4.155.0" }
+}

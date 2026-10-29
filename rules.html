@@ -1,0 +1,66 @@
+{% extends 'base.html' %}{% block title %}Reglas de préstamo{% endblock %}
+{% block content %}<div class="page-heading">
+<div>
+<p class="eyebrow">CIRCULACIÓN · PROTOTIPO ACADÉMICO</p>
+<h1>Reglas claras para todos</h1>
+<p class="muted">Configuración actual del prototipo. Las reglas institucionales requieren validación con biblioteca.</p>
+</div>
+</div>
+<div class="table-wrap" role="region" tabindex="0" aria-label="Reglas por usuario y colección">
+<table>
+<thead>
+<tr>
+<th>Tipo de usuario</th>
+<th>Colección</th>
+<th>Cupo independiente</th>
+<th>Plazo sugerido</th>
+<th>Hora sugerida</th>
+</tr>
+</thead>
+<tbody>{% for rule in rules %}<tr>
+<td>{{ rule.type_name }}</td>
+<td>{{ rule.collection_name }}</td>
+<td>{{ rule.max_items }} ejemplares</td>
+<td>{{ rule.loan_days }} días</td>
+<td>{{ '%02d'|format(rule.due_hour) }}:00</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+<div class="loan-grid rules-grid">
+<section class="panel">
+<h2>Cómo funciona aquí</h2>
+<ul>
+<li>Debes tener la cuenta activa, estar habilitado y no tener préstamos vencidos.</li>
+<li>Cada colección tiene su propio cupo. Las asignaciones para retiro cuentan para evitar sobrepasarlo después.</li>
+<li>Una solicitud pendiente no retiene ejemplares ni consume cupo.</li>
+<li>La aprobación asigna una copia. Solo la entrega física inicia el préstamo.</li>
+<li>El administrador confirma la fecha y hora exactas de devolución.</li>
+<li>Los avisos de próximo vencimiento aparecen hasta {{ threshold }} horas antes. Este umbral es una decisión del prototipo.</li>
+</ul>
+</section>
+<section class="panel">
+<h2>Qué falta validar</h2>
+<ul>
+<li>Días hábiles, fines de semana, feriados y horarios efectivos de devolución. La sugerencia usa días calendario.</li>
+<li>Automatización de multas y duración de sanciones: las fuentes contienen indicaciones diferentes.</li>
+<li>Vigencia de asignaciones sin retiro, reglas de otros tipos de usuarios y colecciones.</li>
+<li>Datos e identificación institucional. Este prototipo usa información ficticia.</li>
+</ul>
+<p class="small muted">No se calculan multas. Biblioteca administra la habilitación de las cuentas.</p>
+</section>
+</div>
+<section class="panel sources">
+<h2>Referencias oficiales revisadas</h2>
+<p class="muted">Consulta realizada el 28/10/2026. Valores iniciales para pregrado: general 6 / 3 días / 18:00; alta demanda 3 / 3 días / 19:00.</p>
+<ul>
+<li>
+<a href="https://bibliotecas.ucn.cl/wp-content/uploads/2021/08/Reglamento-Unificado-Bibliotecas-UCN-2021-Decreto-82-2021.pdf">Reglamento UCN · Decreto 82/2021</a> — artículos 6, 16, 17 y 29.</li>
+<li>
+<a href="https://bibliotecas.ucn.cl/servicios/prestamos/coquimbo/">Tabla de préstamos de Coquimbo</a>
+</li>
+<li>
+<a href="https://bibliotecas.ucn.cl/faqs/">Preguntas frecuentes de Bibliotecas UCN</a>
+</li>
+</ul>
+<p class="small">La configuración puede ajustarse para validar el prototipo; no modifica las normas oficiales.</p>
+</section>{% endblock %}

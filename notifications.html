@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Avisos{% endblock %}
+{% block content %}
+<div class="page-heading">
+<div>
+<h1>Avisos de disponibilidad</h1>
+<p class="muted">Libros que te interesan y volvieron a tener ejemplares disponibles.</p>
+</div>
+<a href="{{ url_for('favorites.index') }}">Administrar avisos</a>
+</div>
+{% if notifications %}<div class="panel list-panel">{% for notice in notifications %}<article class="list-row">
+<div>
+<span class="badge">{{ 'Leído' if notice.read_at else 'Nuevo aviso' }}</span>
+<h2 class="item-title">
+<a href="{{ url_for('catalog.detail',book_id=notice.book_id) }}">{{ notice.title }}</a>
+</h2>
+<p>Volvió a estar disponible el {{ notice.created_at|localdate }}.</p>
+<p class="small">{{ 'Aún hay ejemplares disponibles. Puedes enviar una solicitud.' if notice.available else 'La disponibilidad cambió y ahora no quedan ejemplares libres.' }}</p>
+</div>
+<a href="{{ url_for('catalog.detail',book_id=notice.book_id) }}">Ver ficha</a>{% if not notice.read_at %}<form method="post" action="{{ url_for('favorites.read_notice',notification_id=notice.id) }}">{{ csrf() }}<button class="button secondary">Marcar como leído</button>
+</form>{% else %}<span class="small muted">{{ notice.read_at|localdate }}</span>{% endif %}</article>{% endfor %}</div>
+{% else %}<div class="empty">
+<h2>No tienes avisos de disponibilidad</h2>
+<p>Aparecerán cuando vuelva a estar disponible un título para el que activaste el aviso.</p>
+<a href="{{ url_for('catalog.index') }}">Consultar catálogo</a>
+</div>{% endif %}
+<p class="small muted after-list">El aviso no aparta un ejemplar. Biblioteca revisará tu solicitud de la manera habitual. Los avisos de devolución están en <a href="{{ url_for('views.home') }}">Mi inicio</a>.</p>
+{% endblock %}

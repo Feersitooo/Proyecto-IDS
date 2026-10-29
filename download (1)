@@ -1,0 +1,51 @@
+# Entornos y archivos generados por Python
+.venv/
+.venv-workers/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Configuración privada. El ejemplo sin secretos sí se conserva.
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Bases de una instalación y respaldos; conservar los esquemas .sql.
+instance/
+*.sqlite
+*.sqlite-*
+*.sqlite3*
+*.db
+*.db-*
+backups/
+respaldos/
+
+# Dependencias y estado generado de Cloudflare
+node_modules/
+python_modules/
+.wrangler/
+.uv-cache/
+cloudflare/schema.json
+
+# Copia temporal usada únicamente para la vista previa
+.preview-data/
+preview_vendor/
+preview_app.py
+preview-launch.mjs
+
+# Archivos del sistema, registros y paquetes de entrega
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+*.zip
+*.rar
+*.7z
